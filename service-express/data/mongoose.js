@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
-const DB_URL = process.env.ATLAS_URL;
+mongoose.set('debug', true);
 
+const DB_URL = process.env.ATLAS_URL;
 const options = {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 }
 
 const test = () => {
@@ -15,7 +17,29 @@ const test = () => {
                     msg: "Connection Test Successful.",
                     desc: "Test of connection to MongoDB Atlas Plurster DB succeeded" 
                 });
-                goose.disconnect();
+                // CONNECTION EVENTS
+                // When successfully connected
+                mongoose.connection.on('connected', function () {
+                    console.log('Mongoose default connection open to ' + dbURI);
+                }); 
+                    
+                // If the connection throws an error
+                mongoose.connection.on('error',function (err) { 
+                    console.log('Mongoose default connection error: ' + err);
+                }); 
+                
+                // When the connection is disconnected
+                mongoose.connection.on('disconnected', function () { 
+                    console.log('Mongoose default connection disconnected'); 
+                });
+                
+                // If the Node process ends, close the Mongoose connection 
+                process.on('SIGINT', function() {   
+                    mongoose.connection.close(function () { 
+                    console.log('Mongoose default connection disconnected through app termination'); 
+                    process.exit(0); 
+                    }); 
+                }); 
             })
             .catch(err => {
                 console.error(err);
@@ -28,6 +52,40 @@ const test = () => {
     return iou;
 }
 
+class MongooseCRUD {
+    constructor(name, schema){ 
+        console.log(`---- Making ${name} Connection ----`)
+        const connection = mongoose.createConnection(DB_URL, options);
+        this.model = connection.model(name, schema);
+    }
+    findOne(id){
+        return this.model.findById(id).exec()
+    }
+    findMany(info){
+        return this.model.find({ [info.key] : new RegExp(info.value, 'i') }).exec();
+    }
+    findAll(){
+        return this.model.find().exec()
+    }
+    createOne(data){
+        const entity = new this.model(data);
+        return entity.save();
+    }
+    createMany(data){
+        return this.model.insertMany([...data]);
+    }
+    updateOne(info){
+        return this.model.findByIdAndUpdate(info.id, 
+                { ...info.data }, 
+                { new: true })
+            .exec();
+    }
+    deleteOne(id){
+        return this.model.findOneAndRemove({ _id: id });
+    }
+}
+
 module.exports = {
-    test
+    test,
+    MongooseCRUD
 }

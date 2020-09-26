@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const db = require('./data/mongoose');
+const v1Router = require('./routes/api/v1');
 const supportRouter = require('./routes/support');
 const usersRouter = require('./routes/users');
 
@@ -24,7 +25,7 @@ db.test()
     app.use(cookieParser());
     app.use(express.static(path.join(__dirname, 'public')));
 
-
+    app.use('/v1', v1Router);
     app.use('/users', usersRouter);
 
     // catch 404 and forward to error handler
