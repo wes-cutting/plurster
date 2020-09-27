@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 mongoose.set('debug', true);
 
-const DB_URL = process.env.ATLAS_URL;
+const DB_URL = process.env.DB_URL;
 const options = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false
 }
 
-const test = () => {
+const connect = () => {
     const iou = new Promise((resolve, reject) => {
         mongoose.connect(DB_URL, options)
             .then(goose => {

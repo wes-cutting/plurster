@@ -18,7 +18,7 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use('/support', supportRouter);
 
-db.test()
+db.connect()
   .then(() => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
@@ -44,5 +44,8 @@ db.test()
       res.render('error');
     });
   })
+  .catch((err) => {
+    res.render('error');
+  });
 
 module.exports = app;

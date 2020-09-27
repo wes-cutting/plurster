@@ -1,6 +1,6 @@
 # PLURSTER
 ## Memorable Moment Application
-A record keeping tool to help track moments that stand out as unique combinations of interests, people, locations, and organizations. 
+A record keeping tool to help track of moments that stand out as unique combinations of interests, people, locations, and organizations. 
 ## Architecture
 In progress
 ## Todo
